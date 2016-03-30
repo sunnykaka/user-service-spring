@@ -1,7 +1,9 @@
 package com.akkafun.user.service;
 
 import com.akkafun.BaseTest;
+import com.akkafun.user.api.dtos.RegisterDto;
 import com.akkafun.user.domain.User;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -23,7 +25,7 @@ public class UserServiceTest extends BaseTest {
 
     @Test
     @Transactional
-    @Rollback(false)
+    @Rollback(true)
     public void test() {
         User user = new User();
         user.setUsername("张三");
@@ -42,6 +44,29 @@ public class UserServiceTest extends BaseTest {
         assertThat(user.isPresent(), is(true));
         System.out.println(user.get().getId());
     }
+
+    @Test
+    public void testRegister() {
+
+        RegisterDto registerDto = new RegisterDto();
+        registerDto.setUsername(RandomStringUtils.randomAlphanumeric(8));
+        registerDto.setPassword(RandomStringUtils.randomAlphanumeric(8));
+
+        User user = userService.register(registerDto);
+        assertThat(user.getId(), notNullValue());
+
+        Optional<User> userOp = userService.getById(user.getId());
+        assertThat(userOp.isPresent(), is(true));
+
+        try {
+            userService.register(registerDto);
+            throw new AssertionError("使用重复用户名注册成功: " + registerDto.getUsername());
+        } catch(RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
 
 
 

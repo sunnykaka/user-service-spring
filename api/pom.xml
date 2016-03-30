@@ -2,10 +2,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.akkafun</groupId>
     <artifactId>user-service-spring-api</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${parent.version}</version>
     <packaging>jar</packaging>
+
+    <parent>
+        <groupId>com.akkafun</groupId>
+        <artifactId>user-service-spring</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
     <properties>
         <!-- Stand-alone RESTFul application for testing only -->
@@ -13,6 +18,19 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <!-- Setup Spring Boot -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <!-- Setup Spring MVC & REST, use Embedded Tomcat -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>

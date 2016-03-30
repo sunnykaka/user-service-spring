@@ -1,12 +1,16 @@
 package com.akkafun.user.service;
 
+import com.akkafun.common.utils.PasswordHash;
 import com.akkafun.user.api.dtos.RegisterDto;
 import com.akkafun.user.dao.UserRepository;
 import com.akkafun.user.domain.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.GeneralSecurityException;
 import java.util.Optional;
 
 /**
@@ -14,6 +18,9 @@ import java.util.Optional;
  */
 @Service
 public class UserService {
+
+    protected Logger logger = LoggerFactory.getLogger(UserService.class);
+
 
     @Autowired
     private UserRepository userRepository;
@@ -30,8 +37,22 @@ public class UserService {
 
     @Transactional
     public User register(RegisterDto registerDto) {
+        if(isUsernameExist(registerDto.getUsername(), Optional.empty())) {
+            throw new RuntimeException(String.format("用户名%s已存在", registerDto.getUsername()));
+        }
 
-        return null;
+        User user = new User();
+        user.setUsername(registerDto.getUsername());
+        try {
+            user.setPassword(PasswordHash.createHash(registerDto.getPassword()));
+        } catch (GeneralSecurityException e) {
+            logger.error("创建哈希密码的时候发生错误", e);
+            throw new RuntimeException("用户注册失败");
+        }
+
+        userRepository.save(user);
+
+        return user;
     }
 
 
@@ -44,17 +65,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public boolean isUsernameExist(String username, Optional<Integer> userId) {
 
-//        String hql = "select u.id from User u where u.userName = :username";
-//        Map<String, Object> params = new HashMap<>();
-//        params.put("username", username);
-//        if(userId.isPresent()) {
-//            hql += " and u.userId != :userId ";
-//            params.put("userId", userId);
-//        }
-//        List<Integer> results = generalDao.query(hql, Optional.empty(), params);
-//        return !results.isEmpty();
-
-        return false;
+        return userRepository.isUsernameExist(username, userId);
     }
 
 
